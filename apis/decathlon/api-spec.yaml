@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: demo
+    email: demo@axway.com
+  title: 'decathlon coupon api'
+  version: '1.0'
+  description: 'https://api.decathlon.com/coupon/ specs'
+servers:
+  - url: 'http://decathlon.demo:2002/'
+tags:
+  - name: coupon
+  - name: 'decathlon'
+paths:
+  /coupon:
+    get:
+      summary: Get a decathlon coupon
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/decathlonCoupon'
+              examples: {}
+      operationId: get-decathlon-coupon
+      description: Get a coupon for decathlon
+    parameters: []
+components:
+  schemas:
+    decathlonDateRange:
+      title: DateRange
+      type: object
+      properties:
+        start:
+          type: string
+          x-faker: date.past
+        end:
+          type: string
+          x-faker: date.future
+    decathlonCoupon:
+      title: Coupon
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: string
+          pattern: '[0-9]{7}'
+        code:
+          type: string
+          enum:
+            - SPRINGOFF
+            - BACKTOSCHOOL
+            - XMASGIFT
+            - SUMMERTIME
+            - HLLWN
+            - MOTHERSDAY
+            - FATHERSDAY
+            - SWAG_ON
+            - JUSTDOIT
+        validity:
+          $ref: '#/components/schemas/decathlonDateRange'
+        amount:
+          type: string
+          enum:
+            - 10€
+            - 20€
+            - 5€
+            - 15€
+        recipient:
+          type: string
+          x-faker: internet.email
+          format: email
+  securitySchemes: {}
+  examples: {}

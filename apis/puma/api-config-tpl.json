@@ -1,0 +1,14 @@
+{
+  "$merge": {
+    "source": {
+      "$import": "../defaults.json"
+    },
+    "with": {
+      "name": "Puma coupon system v4",
+      "summary": "Coupons to Swag on!",
+      "path": "/puma",
+      "version": "1.0",
+      "backendBasepath": "http://puma.demo:2004/"
+    }
+  }
+}

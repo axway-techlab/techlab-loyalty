@@ -1,0 +1,14 @@
+[Unit]
+Description= [Trainee] Enterprise Edge Gateway Discovery Agent (Insurance)
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+WatchdogSec=600
+ExecStart=/opt/Axway/agents/trainee/discovery_agent --pathConfig /opt/Axway/agents/trainee --envFile /opt/Axway/agents/trainee/da_env_vars_IN.env
+Restart=always
+User=axway
+Group=axway
+
+[Install]
+WantedBy=multi-user.target

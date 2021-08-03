@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: demo
+    email: demo@axway.com
+  title: 'nike coupon api'
+  version: '1.0'
+  description: 'https://api.nike.com/coupon/ specs'
+servers:
+  - url: 'http://nike.demo:2003/'
+tags:
+  - name: coupon
+  - name: 'nike'
+paths:
+  /coupon:
+    get:
+      summary: Get a nike coupon
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/nikeCoupon'
+              examples: {}
+      operationId: get-nike-coupon
+      description: Get a coupon for nike
+    parameters: []
+components:
+  schemas:
+    nikeDateRange:
+      title: DateRange
+      type: object
+      properties:
+        start:
+          type: string
+          x-faker: date.past
+        end:
+          type: string
+          x-faker: date.future
+    nikeCoupon:
+      title: Coupon
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: string
+          pattern: '[0-9]{7}'
+        code:
+          type: string
+          enum:
+            - SPRINGOFF
+            - BACKTOSCHOOL
+            - XMASGIFT
+            - SUMMERTIME
+            - HLLWN
+            - MOTHERSDAY
+            - FATHERSDAY
+            - SWAG_ON
+            - JUSTDOIT
+        validity:
+          $ref: '#/components/schemas/nikeDateRange'
+        amount:
+          type: string
+          enum:
+            - 10€
+            - 20€
+            - 5€
+            - 15€
+        recipient:
+          type: string
+          x-faker: internet.email
+          format: email
+  securitySchemes: {}
+  examples: {}

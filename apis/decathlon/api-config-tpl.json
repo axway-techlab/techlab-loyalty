@@ -1,0 +1,14 @@
+{
+  "$merge": {
+    "source": {
+      "$import": "../defaults.json"
+    },
+    "with": {
+      "name": "Bons de réduction Décathlon",
+      "summary": "A fond la forme!",
+      "path": "/decathlon",
+      "version": "1.0",
+      "backendBasepath": "http://decathlon.demo:2002/"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+[Unit]
+Description= [Master] Enterprise Edge Gateway Traceability Agent
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+WatchdogSec=600
+ExecStart=/opt/Axway/agents/master/traceability_agent --path.config /opt/Axway/agents/master --envFile /opt/Axway/agents/master/ta_env_vars.env
+Restart=always
+User=axway
+Group=axway
+
+[Install]
+WantedBy=multi-user.target

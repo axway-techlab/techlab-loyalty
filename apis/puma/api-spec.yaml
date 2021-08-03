@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: demo
+    email: demo@axway.com
+  title: 'puma coupon api'
+  version: '1.0'
+  description: 'https://api.puma.com/coupon/ specs'
+servers:
+  - url: 'http://puma.demo:2003/'
+tags:
+  - name: coupon
+  - name: 'puma'
+paths:
+  /coupon:
+    get:
+      summary: Get a puma coupon
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pumaCoupon'
+              examples: {}
+      operationId: get-puma-coupon
+      description: Get a coupon for puma
+    parameters: []
+components:
+  schemas:
+    pumaDateRange:
+      title: DateRange
+      type: object
+      properties:
+        start:
+          type: string
+          x-faker: date.past
+        end:
+          type: string
+          x-faker: date.future
+    pumaCoupon:
+      title: Coupon
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: string
+          pattern: '[0-9]{7}'
+        code:
+          type: string
+          enum:
+            - SPRINGOFF
+            - BACKTOSCHOOL
+            - XMASGIFT
+            - SUMMERTIME
+            - HLLWN
+            - MOTHERSDAY
+            - FATHERSDAY
+            - SWAG_ON
+            - JUSTDOIT
+        validity:
+          $ref: '#/components/schemas/pumaDateRange'
+        amount:
+          type: string
+          enum:
+            - 10€
+            - 20€
+            - 5€
+            - 15€
+        recipient:
+          type: string
+          x-faker: internet.email
+          format: email
+  securitySchemes: {}
+  examples: {}

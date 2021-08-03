@@ -1,0 +1,45 @@
+{
+  "name": "",
+  "path": "",
+  "state": "published",
+  "version": "",
+  "organization": "API Development",
+  "apiDefinition": "api-spec.yaml",
+  "summary": "",
+  "backendBasepath": "",
+  "image": "api-image.jpg",
+  "securityProfiles": [
+    {
+      "name": "_default",
+      "isDefault": true,
+      "devices": [
+        {
+          "name": "API Key",
+          "type": "apiKey",
+          "order": 1,
+          "properties": {
+            "apiKeyFieldName": "KeyId",
+            "takeFrom": "HEADER",
+            "removeCredentialsOnSuccess": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "tags": {
+    "Usages": [
+      "Couponing"
+    ],
+    "Team": [
+      "Loyalty"
+    ],
+    "versatile": [
+      "3"
+    ]
+  },
+  "clientOrganizations": [
+    "API Development"
+  ]
+}
+
+

@@ -1,0 +1,14 @@
+{
+  "$merge": {
+    "source": {
+      "$import": "../defaults.json"
+    },
+    "with": {
+      "name": "Amazon personalized coupons",
+      "summary": "Get coupons with your email",
+      "path": "/amazon",
+      "version": "1.0",
+      "backendBasepath": "http://amazon.demo:2001/"
+    }
+  }
+}

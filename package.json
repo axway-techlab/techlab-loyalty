@@ -1,0 +1,22 @@
+{
+  "name": "secrets",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Axway/presales-demo-apis.git"
+  },
+  "bin": {
+    "dotenv2": "index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Axway/presales-demo-apis/issues"
+  },
+  "homepage": "https://github.com/Axway/presales-demo-apis#readme",
+  "dependencies": {
+    "json-merger": "^1.1.6"
+  }
+}
