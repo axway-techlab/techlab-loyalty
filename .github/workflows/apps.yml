@@ -1,31 +1,23 @@
-name: Deploy all Couponning APIs
+name: Deploy all apps
 
 on:
   push:
     branches:
-      - demo
-    paths: couponing/**
+      - main
+    paths: apps/**
 
 jobs:
-  Couponing-API-Deployment:
+  Apps-Deployment:
     if: "!contains(github.event.head_commit.message, '[SKIP-CI]')" 
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api:
-          - amazon
-          - decathlon
-          - nike
-          - puma
+        app:
+          - godfather
+          - sportswear
     steps:
       - name: Checkout the git repository
         uses: actions/checkout@v2
-      - name: Generate api-config.json
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-      - run: npm i -y
-      - run: npx json-merger couponing/${{ matrix.api }}/api-config-tpl.json |jq . > couponing/${{ matrix.api }}/api-config.json
       - name: Publish to APIM
         uses: Axway/presales-apim-cli-action@v0
         env:
@@ -34,4 +26,4 @@ jobs:
           APIM_HOST: ${{ secrets.APIM_HOST }}
           APIM_PORT: ${{ secrets.APIM_PORT }}
         with:
-          command: api import -c couponing/${{ matrix.api }}/api-config.json
+          command: app import -c apps/${{ matrix.app }}/application-config.json

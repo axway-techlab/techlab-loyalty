@@ -1,0 +1,31 @@
+{
+  "name": "The Good Sportswear Shop",
+  "organization": "API Development",
+  "description": "Get coupons for the main brands of sportswear",
+  "state": "approved",
+  "enabled": true,
+  "credentials": [
+    {
+      "credentialType": "apikeys",
+      "secret": "1f33808e-c18a-48db-8058-0eee7f2a705a",
+      "corsOrigins": [
+        "*"
+      ],
+      "apiKey": "dae3b916-eca5-4c40-a20f-ab0ddad8d62a"
+    }
+  ],
+  "apis": [
+    {
+      "apiName": "Puma coupon system v4",
+      "apiVersion": "1.0"
+    },
+    {
+      "apiName": "Coupons for Nike",
+      "apiVersion": "1.0"
+    },
+    {
+      "apiName": "Bons de réduction Décathlon",
+      "apiVersion": "1.0"
+    }
+  ]
+}

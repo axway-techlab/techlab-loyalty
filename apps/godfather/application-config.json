@@ -1,0 +1,27 @@
+{
+  "name": "GodFather",
+  "organization": "API Development",
+  "description": "Coupons... The more you give, the more you get.",
+  "state": "approved",
+  "enabled": true,
+  "credentials": [
+    {
+      "credentialType": "apikeys",
+      "secret": "ac45094d-148e-4816-a2e9-2bf3786377a3",
+      "corsOrigins": [
+        "*"
+      ],
+      "apiKey": "7349b70d-93a8-477f-8fb8-d6e09f9d76be"
+    }
+  ],
+  "apis": [
+    {
+      "apiName": "Amazon personalized coupons",
+      "apiVersion": "1.0"
+    },
+    {
+      "apiName": "Bons de réduction Décathlon",
+      "apiVersion": "1.0"
+    }
+  ]
+}
