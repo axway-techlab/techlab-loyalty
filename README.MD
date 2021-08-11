@@ -1,301 +1,372 @@
-# Example repository for Axway CLI
+# Example repository for Axway CLI - Techlab Loyalty
 
-## Purpose
-The main aim of this repository is to illustrate how the APIM CLI works
-in a CI/CD workload.
+This repository is meant as a short example on a simple usecase to illustrate the flexibility of the Axway API Manager.
 
-Broadly speaking, we have one job per business, that will :
-* generate the expected configuration file [`api-config.json`](#api-config.json) for each api in it
-* invoke the [apim-cli](#https://github.com/Axway-API-Management-Plus/apim-cli) on each api to import it in your API Manager.
+We will first introduce the usecase, and dig a bit more into how the CI/CD pipeline is rendered.
 
-You need to set some Github secrets on your repository for this to work. See [setup](#setup) for further instructions on how to do this.
+A last section is made available with instructions, should you want to fork this repository.
 
-## Setup
+## Use Case
 
-First, fork this repository.
+### You and your clients
+You run an Axway API manager with a set of APIs linked to services you run for your clients.
+These services deliver coupons to whomever is calling them.
+Your clients include Nike, Puma, Décathlon and Amazon.
 
-### Prerequisites
-You are expected to have a running Axway API Manager, so that the APIM CLI can
-interact with it and publish. Setting an Axway API Manager is beyond the scope of this documentation. 
+This Gateway is more directly targeted at the <u>**partners**</u> of your clients, which happen to be 
+two loyalty pure-player startups:
 
-Please take good note on the following information, as you will need it on the [setup](#setup) phase:
-* The domain name and port of the Axway API Manager: This _must_ be an URL accessible on the Internet for this repository to work.
-* The username and password of a user on the API. It can be the `apiadmin`, but depending on what you are trying to achieve, it can be a lesser privileged user.
+### Godfather:
+A end user (a Godfather) gets coupons to distribute to their friends (Godchildren). Godfathers receive coupons for theirselves whenever sufficient coupons from godchildren have been consumed.
+so in brief: The more coupons a godfather spreads, the more coupons he gets for himself.
 
-### Setting the secrets
-Then, create the following (GitHub secrets)[https://docs.github.com/en/actions/reference/encrypted-secrets] in your own fork:
+This service seeks partnership with whoever is issuing coupons, and gets money back from the direct marketing that their userbase can deploy.
 
-| **Name**    | **Example**              | **Description**                               |
-|-------------|--------------------------|-----------------------------------------------|
-| `APIM_HOST` | `api-env.demo.axway.com` | The FQDN of where your Axway API Manager is located |
-| `APIM_PORT` | `8075`                   | The port of your Axway API Manager                  |
-| `APIM_USER` | `apiadmin`               |                                               |
-| `APIM_PASS` | `changeme`               |                                               |
+### Sportswear
+Users of this service can get access to specific discounts for sportswear items like sneakers, caps, sweaters etc.
 
-#### Your API Manager is accessible from the Internet
-You are done. The Github acitons will be run by Github Runners, and they will be able to connect to your Axway API Manager correctly.
+This service wants to access to coupons for any sjop or retail that issues sportswears. It gets incomes from the brands that can lean on them for specific marketing operations.
 
-#### Your API Manager is _not_ accessible from the internet
-The easier way to get going is to [host your own Github Actions Runner](https://docs.github.com/en/actions/hosting-your-own-runners).
-This is well beyond the scope of this documentation.
 
-Just note that your self-hosted runner :
-* must be able to connect to the API Manager.
-* must be able to access Github
-* need not be accessible from the internet
+## CI/CD implementation
 
-The values for `APIM_HOST` and `APIM_PORT` should make sense _to your runner_. For example, if the runner and the API Manager are on the same machine, `APIM_HOST` can (and probably should) be valued to `localhost`.
+This repository, being a Github one, uses Github Actions to run its ci/cd pipelines.
+Note however that we make no use of any tricky or specific functionnalities of GitHub, so the whole lot is portable to other CI/CD technologies like GitlabCI, CircleCI, Jenkins, etc...
 
-In this setting, be aware that your runner becomes an important part of your CI/CD pipeline and should be monitored accordingly.
+### <a href="apis"></a>Focus on APIs
 
-### Testing the setup
-The settings are now finished.
-
-To test your setup, execute the `test-ci.sh` at the root of the project.
-This will basically create a test branch, a test workflow and push the whole thing to your repository, wait a bitto let you check that the workflow is run correctly, then delete this test branch.
-
-The expected outcome is that a workflow listing the apis known to the API Manager is triggered.
-This would confirm that the secrets and the connectivity from the runners and the API Manager are in place.
-
-## Usage
-
-Commit and push as usual.  
-Each push will trigger a publication of a given business if:
-* you are on branch `demo`
-* one file in the business has changed in any way.
-* the last commit of the push does not contain the token `[SKIP-CI]` in its comment.
-
-Have a look at [a workflow example](#workflow) to understand how it works under the hood.
-
-## Layout of the project
-
-This project is layed out this way
+All the apis in this repository have the same layout
 
     .
-    ├── <boilerplate>
-    ├── package.json, package-lock.json
-    ├── <business>
-    │   ├── <api>
-    │   │   ├── api-config-tpl.json
-    │   │   ├── api-image.jpg
-    │   │   └── api-spec.yaml
-    │   └── defaults.json
-    └── .github
-        └── workflows
-            └── publish-<business>.yml
+    ├── .github
+    │   └── workflows
+    │       └── <my_api>.yaml
+    ├── apis
+    │   ├── defaults.json
+    │   └── <my_api>
+    │       ├── Dockerfile
+    │       ├── api-config-tpl.json
+    │       ├── api-image.jpg
+    │       ├── api-spec.yaml
+    │       └── puma-new.jpg
+    ├── package-lock.json
+    └── package.json
 
-For instance, there are 4 businesses: `couponing`, `health_authority`, `insurtech`, `iot`.  
-In `couponing`, you will find 4 apis: `amazon`, `decathlon`, `nike`, `puma`
+#### Github actions
+`./.github/workflow/<my_api>.yaml` defines the actions that will be triggered on a push to the `main` branch, whose commits affects at least one file in the `./apis/<my_api>` folder (change, addition or deletion of a file).  
+The steps are:
+ - [generate](#generate) an API description for `<my_api>`
+ - [publish](#publish) the api to the gateway
+ - (if needed) create and publish a docker image mocking the service (based on [the API specifications](#api-spec.yaml))
 
-### `<boilerplate>`
+#### <a name="generate"></a>Generate the API description
+To publish a new API or update an existing one, The API Manager takes a JSON file describing various fields and properties regarding it, like the version, name, path, description, image for the API.
+This is the `api-config.json` file.  
+This file is not present in this layout: as many of these fields are often similar from an API to the next, this project _generates_ it from:
+  * a default file (`./apis/defaults.json`) containing the expected stucture
+  * a merging file (`./apis/<my_api>/api-config.tpl.json`) containing some overrides
 
-* `README.MD`, `LICENCE.MD`,`.gitignore` which are usual
-* `.gitignore` which excludes [`api-config.json`](#api-config.json) (more on that later) 
+We call [json-merger](https://www.npmjs.com/package/json-merger) to do the actual merging.  
+Simply put, `json-merger` will take the `defaults.json` file and substitute some fields with values in the `api-config-tpl.json` file to obtain the final file.
 
-### `package.json`, `package-lock.json`, `node_modules`
+See [`defaults.json`](#defaults) to learn how to override values.
 
-We need `json-merger` to generate the [`api-config.json`](#api-config.json) file.
-Since this is a nodejs piece, having these two files is the most simple way to make it readily available for us on the CI/CD pipeline.
-It is possible that you never see the `node_modules` directory. Don't worry, its a technicality and can be safely ignored.
+#### <a name="publish"></a>Publish to the API Manager
+Axway provides a fully fedged CLI to create/update apis and apps to an Axway API Manager.  
+This is what we use in the Github action to communicate with the API Manager.  
+To do so effectively, we need some informations that are rendered in this repository as secrets:
 
-### <a name="business"></a>`<business>`
-A line of business, with a folder per API that must be exposed for this business.
+| **Name**    | **Example**              | **Description**                                     |
+|-------------|--------------------------|-----------------------------------------------------|
+| `APIM_HOST` | `api-env.demo.axway.com` | The FQDN of where your Axway API Manager is located |
+| `APIM_PORT` | `8075`                   | The port of your Axway API Manager                  |
+| `APIM_USER` | `apiadmin`               | The username we will use to act on the APIM (must have admin powers) |
+| `APIM_PASS` | `changeme`               | The corresponding password                          |
 
-### <a name="api"></a>`<api>`
-One single API that we want to deal here.
-In this folder, we can find a set of important files, see below.
+#### <a name="api-spec.yaml"></a>`api-spec.yaml`
+The OpenAPI / Swagger definition of the API. This can be a YAML in [OAS 3.x](https://swagger.io/specification/) or [Swagger 2.x](https://swagger.io/specification/v2/) formats.
 
-### `api-config-tpl.json`, `api-config.json`, `defaults.json`
-<a name="api-config-tpl.json"></a><a name="api-config.json"></a><a name="defaults.json"></a>
-`api-config-tpl.json` is a template that is merged with `defaults.json` to produce  `api-config.json`, which is the main configuration to the apim-cli.
-Example:
+This file is referenced in the [`defaults.json`](#defaults) file.
 
-`defaults.json`
+#### <a name="api-image.jpg"></a>`api-image.jpg`
+The API logo. This image is ideally a squared 500x500 image.  
+Avoid :
+  - < 200x200
+  - &gt; 1000x1000
+  - &gt; 1MB
 
-    {
-      "name": "",
-      "path": "",
-      "state": "published",
-      "version": "",
-      "organization": "API Development",
-      "apiDefinition": "api-spec.yaml",
-      "backendBasepath": "http://ptx136.demo.axway.com:8081/",
-      "image": "api-image.jpg",
-      "securityProfiles": [
-        {
-          "name": "_default",
-          "isDefault": true,
-          "devices": [
-            {
-              "name": "API Key",
-              "type": "apiKey",
-              "order": 1,
-              "properties": {
-                "apiKeyFieldName": "KeyId",
-                "takeFrom": "HEADER",
-                "removeCredentialsOnSuccess": "true"
-              }
-            }
-          ]
-        }
-      ],
-      "clientOrganizations": [
-        "API Development"
-      ]
+This file is referenced in the [`defaults.json`](#defaults) file.
+
+#### <a name="mock"></a>Mocking a service
+Each api has a `Dockerfile` creating a dynamic mock of the api with [prism](https://github.com/stoplightio/prism).
+This mock is pushed to the Docker Hub, using the following repository secrets:
+| **Name**             | **Example**                           | **Description** |
+|----------------------|---------------------------------------|----|
+| `DOCKERHUB_USERNAME` | `goodwillhunting`                     | The name of the DockerHub account |
+| `DOCKERHUB_TOKEN`    | `bbf5ee09-e49c-41b7-95f7-e6a22239ec6c`| A [PAT](https://docs.docker.com/docker-hub/access-tokens/) for this account |
+
+The mock will be published in `<DOCKERHUB_USERNAME>/mock-<api_name>:main`, examples `goodwillhunting/mock-mclaurin:main`.
+
+You can run this mock with:
+
+    docker run -it --rm -p 4010:4010 goodwillhunting/mock-mclaurin:main
+
+Prism will tell you what pathes it is listening on, and gets you useful information on each call.  
+You can test that by issuing:
+
+    curl http://localhost:4010/<somepath>
+
+Change `<somepath>` with one given by prism on startup.
+
+#### <a name="defaults"></a>Overriding defaults
+The file `defaults.json` has the expected structure for the APIM cli to work properly.
+Some fields are left blank, and are hence expected to be filled by each API:
+```yaml
+{
+  # The name of the API, this is the main human reference for your API in the APIM 
+  "name": "",
+  # The first components of the path for your API. This must be unique in the APIM
+  "path": "",
+  # Whether the API is published (i.e. accessible) or unpublished (i.e. referenced but not accessible) 
+  "state": "published",
+  # can be any string, semver recommended 
+  "version": "",
+  # the name of the organization in which the API will be created.
+  #  /!\ the org will be created if it does not exist 
+  "organization": "API Development",
+  # The file to read (relative to <my_api> folder) to get the Swagger/OAS specifications of your API
+  "apiDefinition": "api-spec.yaml",
+  # Some words about what your API can do
+  "summary": "",
+  # The URL at which the backend service can be joined.
+  "backendBasepath": "",
+  # The file to read (relative to <my_api> folder) to get a logo for your API 
+  "image": "api-image.jpg",
+  "securityProfiles": [
+     # defines a API Key security protection for the frontend 
+  ],
+  "tags": {
+    # defines a set of tags for the API
+  },
+  "clientOrganizations": [
+    # Which organizations can access your API freely
+  ]
+}
+```
+The `api-config-tpl.json` file can override any of these values:
+```yaml
+{
+  "$merge": {
+    # Tells json-merger to merge "source" with the "with" object:
+    #   - ../default.json (see above) is read
+    #   - the "with" object is then overlayed:
+    #       1. 'simple' or 'complex' unexistent keys are created
+    #       2. 'simple' existent types are overrided
+    #       3. 'complex' keys (arrays, objects) are merged recursively (back to 1.)
+    "source": {
+      "$import": "../defaults.json"
+    },
+    "with": {
+      "name": "Nice API Name",
+      "summary": "My new API will eat the world!",
+      "path": "/amazing",
+      "version": "1.0",
+      "backendBasepath": "https://amazing.world/"
     }
+  }
+}
+```
 
-`api-config-tpl.json`
-
-    {
-      "$merge": {
-        "source": {
-          "$import": "../defaults.json"
-        },
-        "with": {
-          "name": "Good Food Good Life",
-          "summary": "",
-          "path": "/gfgl",
-          "version": "1.0"
-        }
-      }
+If you want for instance to specify `new-shiny-image.png` as your new API logo, you can:
+* place this image in the API folder (`./apis/`)
+* edit the `api-config-tpl.json` to override the `"image"` field:
+```json
+{
+  "$merge": {
+    "source": {
+      "$import": "../defaults.json"
+    },
+    "with": {
+      "name": "Nice API Name",
+      "summary": "My new API will eat the world!",
+      "path": "/amazing",
+      "version": "1.0",
+      "backendBasepath": "https://amazing.world/",
+      "image": "new-shiny-image.png"
     }
+  }
+}
+```
 
-`api-config.json`
+### Focus on Apps
 
-    {
-      "name": "Good Food Good Life",    # <- FROM api-config-tpl.json
-      "path": "/gfgl",                  # <- FROM api-config-tpl.json
-      "state": "published",     
-      "version": "1.0",                 # <- FROM api-config-tpl.json
-      "summary": ""                     # <- FROM api-config-tpl.json
-      "organization": "API Development",
-      "apiDefinition": "api-spec.yaml",
-      "backendBasepath": "http://ptx136.demo.axway.com:8081/",
-      "image": "api-image.jpg",
-      "securityProfiles": [
-        {
-          "name": "_default",
-          "isDefault": true,
-          "devices": [
-            {
-              "name": "API Key",
-              "type": "apiKey",
-              "order": 1,
-              "properties": {
-                "apiKeyFieldName": "KeyId",
-                "takeFrom": "HEADER",
-                "removeCredentialsOnSuccess": "true"
-              }
-            }
-          ]
-        }
-      ],
-      "clientOrganizations": [
-        "API Development"
-      ]
-    }
+    .
+    ├── .github
+    │   └── workflows
+    │       └── apps.yaml
+    └── apps
+        └── <my_app>
+            ├── app-image.jpg
+            └── application-config.json
 
-The rest of fileds maps more or less one to one with those of the screens in the API Manager to create a ew frontend/backend pair.
+In contrast with [apis](#apis), publishing applications is way easier. Two files are worth mentioning:
 
-### <a name="api-image.jpg"></a>`api-image.jpg`
-Referenced by [`api-image.json`](#api-image.json): The image that will serve as an avatar for the API.
+#### `./.github/workflows/apps.yaml`
+This file will publish **all** the applications when:
+* a push is done on the main branch
+* a commit of said push makes **anything** in the `./apps/` (creates a new file, deletes a file, moves to/from it, updates an existing, looks at it, even sideways)
 
-### <a name="api-spec.yaml"></a>`api-spec.yaml`
-Referenced by [`api-config.json`](#api-config.json): The OpenAPI/Swagger definition for the API.
+Please note that the apps to publish are listed explicitly in this file. To change that list, see [Ading or deleting an app](#list-apps) below.
 
-### .github / workflows
-Where Github workflows live. A workflow is triggered in response of a whole lot of events in the life of a repository/project.
-Each file here will be evaluated on every new event.
+#### `./apps/<my_app>/application-config.json`
+This file defines what the application will look like in the API Manager:
+```yaml
+{
+  # A nice name for your app. This is what your app is called in the APIM UI
+  "name": "Nice App",
+  # The organization in which to create the app 
+  "organization": "API Development",
+  # Some words about your app 
+  "description": "The best app ever",
+  # To make sure that the app is usable (i.e. approved and enabled) 
+  "state": "approved",
+  "enabled": true,
+  "credentials": [
+    # A list of credentials for the application
+  ],
+  "apis": [
+    # A list of apis this app can access
+  ],
+  "appQuota": {
+    # The limits APIM will enforce regarding this app's usage
+  }
+}
+```
 
-### <a name="workflow"></a>`publish-<business>.yml`
-Lets have a look at an example; all are alike anyways.
+#### <a name="list-apps"></a>Adding or deleting an app
 
-    name: Deploy all Couponning APIs
-
-    on:
-      push:
-        branches:
-          - demo
-        paths: couponing/**
-    jobs:
-      Couponing-API-Deployment:
-        if: "!contains(github.event.head_commit.message, '[SKIP-CI]')" 
-        runs-on: ubuntu-latest
-        strategy:
-          matrix:
-            api:
-              - amazon
-              - decathlon
-              - nike
-              - puma
-        steps:
-          - name: Checkout the git repository
-            uses: actions/checkout@v2
-          - name: Generate api-config.json
-            uses: actions/setup-node@v2
-            with:
-              node-version: '16'
-          - run: npm i -y
-          - run: npx json-merger couponing/${{ matrix.api }}/api-config-tpl.json |jq . >   couponing/${{ matrix.api }}/api-config.json
-          - name: Publish to APIM
-            uses: Axway/presales-apim-cli-action@v0
-            env:
-              APIM_USER: ${{ secrets.APIM_USER }}
-              APIM_PASS: ${{ secrets.APIM_PASS }}
-              APIM_HOST: ${{ secrets.APIM_HOST }}
-              APIM_PORT: ${{ secrets.APIM_PORT }}
-            with:
-              command: api import -c couponing/${{ matrix.api }}/api-config.json
-
-Breaking this down:
-
-   name: Deploy all Couponning APIs
-
-    on:
-      push:
-        branches:
-          - demo
-        paths: couponing/**
-
-Give a name to the workflow, and mark interrest on push events that registers a modification on business `couponing`.
-
-    jobs:
-      Couponing-API-Deployment:
-        if: "!contains(github.event.head_commit.message, '[SKIP-CI]')" 
-        runs-on: ubuntu-latest
-        strategy:
-          matrix:
-            api:
-              - amazon
-              - decathlon
-              - nike
-              - puma
-
-Configuring the jobs we are running. Here, we will run every steps for each api un parallel (matrix strategy does that). Steps will run in the latest ubuntu OS, and only if the last commit of the push we are dealing with does not have `[SKIP-CI]` in its commit message.
-
+To create a `my-new-app`, you can create a new app folder `./apps/my-new-app`, by copying an existing one and adapting the `application-config.json` file accordingly for instance.
+You also have to change the `./.github/workflows/apps.yaml` by adding `my-new-app` in the `jobs.Apps-Deployment.strategy.matrix.app` array:
+```yaml
+name: Deploy all apps
+on:
+  ## eluded
+jobs:
+  Apps-Deployment:
+    if: "!contains(github.event.head_commit.message, '[SKIP-CI]')" 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app:
+          - old-app
+          - my-new-app ## <- here
     steps:
-      - name: Checkout the git repository
-        uses: actions/checkout@v2
-      - name: Generate api-config.json
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
+      ## eluded, nothing to change here
+```
+Commit, push et voilà.
 
-First step is about checking out our repository and getting NodeJS v16 in scope.
+To remove an app, remove its name from the `./.github/workflows/apps.yaml`, remove the folder, commit push, and remove the app from the APIM manually (there is currently no way of doing it via the cli)
 
-      - run: npm i -y
-      - run: npx json-merger couponing/${{ matrix.api }}/api-config-tpl.json |jq . >   couponing/${{ matrix.api }}/api-config.json
+## Runthings locally
 
-Then install the needed NodeJS packages (`npm i -y`) and run `json-merger` to generate the [`api-config.json`](#api-config.json).
+This is for you to poke around and see what is going on in the CI/CD pipeline with your own eyes.
 
-      - name: Publish to APIM
-        uses: Axway/presales-apim-cli-action@v0
-        env:
-          APIM_USER: ${{ secrets.APIM_USER }}
-          APIM_PASS: ${{ secrets.APIM_PASS }}
-          APIM_HOST: ${{ secrets.APIM_HOST }}
-          APIM_PORT: ${{ secrets.APIM_PORT }}
-        with:
-          command: api import -c couponing/${{ matrix.api }}/api-config.json
+### Installing json-merger
+`json-merger` is used to create the API configuration files out of some defaults and some overrides.  
+It is a npm module so assuming `node`and `npm`are installed, you can go at the root of your project and issue:
+```bash
+$ npm i -y
+```
+```
+added 29 packages, and audited 30 packages in 960ms
 
-Lastly, we run the `api import` command from [`apim-cli`](https://github.com/Axway-API-Management-Plus/apim-cli/wiki#supported-commands)
+found 0 vulnerabilities
+```
+
+
+### Installing the APIM
+
+This will create the final file, so that you can have a look at it. Note that you are never required to do so yourself.
+
+You can install it by following the instructions [here](https://github.com/Axway-API-Management-Plus/apim-cli)
+
+### Publishing an API
+
+Assuming that you installed `json-merger` and `apim`:
+```bash
+$ cd apis/my-api
+$ npx json-merger api-config-tpl.json > api-config.json
+$ apim -h apim.url.here.com -port 8075 \
+     -u apiadmin -p 'ChangeThisForYourPassword' \
+     api import -c api-config.json
+```
+```
+
+----------------------------------------------------------------------------------------
+API-Manager CLI: 1.3.7
+                                                                        
+To report issues or get help, please visit: 
+https://github.com/Axway-API-Management-Plus/apim-cli
+----------------------------------------------------------------------------------------
+Module: API - I M P O R T (1.3.7)
+----------------------------------------------------------------------------------------
+0      INFO     APIManagerAdapter| Successfully connected to (...)
+327    INFO  IImportConfigAdapter| Reading API-Definition (Sw(...)
+384    INFO      APISpecification| Used the backendBasepath: (...)
+411    INFO  IImportConfigAdapter| Loading image from: '/User(...)
+3639   INFO  APIManagerAPIAdapter| Found existing API on path(...)
+4415   WARN          APIImportApp| No changes detected betwee(...)
+No changes detected. Existing with RC: 0
+```
+The output is truncated to make it more readable, and in this particular run, nothing was done since the published API was the same as the one I was sending, and the `apim` command is clever enough to realize that.
+
+### Publishing an app
+Assuming that you installed `apim`:
+```bash
+$ cd apis/my-api
+$ apim -h apim.url.here.com -port 8075 \
+     -u apiadmin -p 'ChangeThisForYourPassword' \
+     app import -c application-config.json
+```
+```
+
+----------------------------------------------------------------------------------------
+API-Manager CLI: 1.3.7
+                                                                        
+To report issues or get help, please visit: 
+https://github.com/Axway-API-Management-Plus/apim-cli
+----------------------------------------------------------------------------------------
+Module: Application - I M P O R T (1.3.7)
+----------------------------------------------------------------------------------------
+0      INFO     APIManagerAdapter| Successfully connected to (...)
+3701   INFO  ApplicationImportApp| Successfully replicated ap(...)
+
+```
+The output is truncated to make it more readable, but the output is sufficiently explicit.
+
+## I want to fork.
+
+Please do.
+
+This section describe what you need to change on your fork to make it work properly
+
+### Prerequisites
+
+* From the API Manager:  
+  * You are expected to have a running Axway API Manager, so that the APIM CLI can
+interact with it and publish. Setting an Axway API Manager is beyond the scope of this documentation. 
+  * The username and password of an api admin is also required.
+* From Docker Hub, you need a username and a [PAT](https://docs.docker.com/docker-hub/access-tokens/)
+
+### Setting the secrets
+
+| **Name**             | **Example**                           | **Description** |
+|----------------------|---------------------------------------|----|
+| `DOCKERHUB_USERNAME` | `goodwillhunting`                     | The name of the DockerHub account |
+| `DOCKERHUB_TOKEN`    | `bbf5ee09-e49c-41b7-95f7-e6a22239ec6c`| A [PAT](https://docs.docker.com/docker-hub/access-tokens/) for this account |
+| `APIM_HOST`          | `api-env.demo.axway.com`              | The FQDN of where your Axway API Manager is located |
+| `APIM_PORT`          | `8075`                                | The port of your Axway API Manager |
+| `APIM_USER`          | `apiadmin`                            | The username we will use to act on the APIM (must have api admin powers) |
+| `APIM_PASS`          | `changeme`                            | The corresponding password |
+
+Happy forking!
