@@ -1,3 +1,28 @@
+- [Use Case](#use-case)
+  * [You and your clients](#you-and-your-clients)
+  * [The apps](#the-apps)
+- [CI/CD implementation](#cicd-implementation)
+  * [Focus on APIs](#focus-on-apis)
+    + [Github actions](#github-actions)
+    + [Generate the API description](#generate-the-api-description)
+    + [Publish to the API Manager](#publish-to-the-api-manager)
+    + [`api-spec.yaml`](#api-specyaml)
+    + [`api-image.jpg`](#api-imagejpg)
+    + [Mocking a service](#mocking-a-service)
+    + [Overriding defaults](#overriding-defaults)
+  * [Focus on Apps](#focus-on-apps)
+    + [`./.github/workflows/apps.yaml`](#githubworkflowsappsyaml)
+    + [`./apps/<my_app>/application-config.json`](#appsmy_appapplication-configjson)
+    + [Adding or deleting an app](#adding-or-deleting-an-app)
+- [Runthings locally](#runthings-locally)
+  * [Installing json-merger](#installing-json-merger)
+  * [Installing the APIM](#installing-the-apim)
+  * [Publishing an API](#publishing-an-api)
+  * [Publishing an app](#publishing-an-app)
+- [I want to fork.](#i-want-to-fork)
+  * [Prerequisites](#prerequisites)
+  * [Setting the secrets](#setting-the-secrets)
+  
 # Example repository for Axway CLI - Techlab Loyalty
 
 This repository is meant as a short example on a simple usecase to illustrate the flexibility of the Axway API Manager.
@@ -16,13 +41,17 @@ Your clients include Nike, Puma, Décathlon and Amazon.
 This Gateway is more directly targeted at the <u>**partners**</u> of your clients, which happen to be 
 two loyalty pure-player startups:
 
-### Godfather:
+### The apps
+
+**GodFather**
+
 A end user (a Godfather) gets coupons to distribute to their friends (Godchildren). Godfathers receive coupons for theirselves whenever sufficient coupons from godchildren have been consumed.
 so in brief: The more coupons a godfather spreads, the more coupons he gets for himself.
 
 This service seeks partnership with whoever is issuing coupons, and gets money back from the direct marketing that their userbase can deploy.
 
-### Sportswear
+**Sportswear**
+
 Users of this service can get access to specific discounts for sportswear items like sneakers, caps, sweaters etc.
 
 This service wants to access to coupons for any sjop or retail that issues sportswears. It gets incomes from the brands that can lean on them for specific marketing operations.
