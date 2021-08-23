@@ -7,7 +7,7 @@
       "name": "Coupons for Nike",
       "summary": "Coupons for your sportswear",
       "path": "/nike",
-      "version": "1.0",
+      "version": "1.0-1",
       "backendBasepath": "http://nike.demo:2003/"
     }
   }

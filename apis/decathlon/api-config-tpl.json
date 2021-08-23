@@ -7,7 +7,7 @@
       "name": "Bons de réduction Décathlon",
       "summary": "A fond la forme!",
       "path": "/decathlon",
-      "version": "1.0",
+      "version": "1.0-1",
       "backendBasepath": "http://decathlon.demo:2002/"
     }
   }
