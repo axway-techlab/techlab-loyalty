@@ -7,7 +7,7 @@
       "name": "Amazon personalized coupons",
       "summary": "Get coupons with your email",
       "path": "/amazon",
-      "version": "1.0-1",
+      "version": "1.0-2",
       "backendBasepath": "http://amazon.demo:2001/"
     }
   }
