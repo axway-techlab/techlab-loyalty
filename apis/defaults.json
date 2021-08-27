@@ -39,6 +39,20 @@
   },
   "clientOrganizations": [
     "API Development"
+  ],
+  "applications": [
+    {
+      "name": "GodFather",
+      "enabled": true,
+      "state": "approved",
+      "oauthResources": []
+    },
+    {
+      "name": "The Good Sportswear Shop",
+      "enabled": true,
+      "state": "approved",
+      "oauthResources": []
+    }
   ]
 }
 

@@ -13,15 +13,5 @@
       ],
       "apiKey": "7349b70d-93a8-477f-8fb8-d6e09f9d76be"
     }
-  ],
-  "apis": [
-    {
-      "apiName": "Amazon personalized coupons",
-      "apiVersion": "1.0"
-    },
-    {
-      "apiName": "Bons de réduction Décathlon",
-      "apiVersion": "1.0"
-    }
   ]
 }

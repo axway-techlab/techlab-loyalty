@@ -58,4 +58,4 @@ jobs:
           APIM_HOST: ${{ secrets.APIM_HOST }}
           APIM_PORT: ${{ secrets.APIM_PORT }}
         with:
-          command: api import -c apis/${{ env.api }}/api-config.json
+          command: api import -clientAppsMode replace -c apis/${{ env.api }}/api-config.json
