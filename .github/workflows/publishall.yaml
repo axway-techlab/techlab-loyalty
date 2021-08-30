@@ -1,0 +1,32 @@
+name: Publish all APIs
+on:
+  workflow_dispatch:
+
+jobs:
+  apim:
+    strategy:
+      matrix:
+        api:
+          - amazon
+          - decathlon
+          - nike
+          - puma
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the git repository
+        uses: actions/checkout@v2
+      - name: Generate api-config.json
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm i -y
+      - run: npx json-merger apis/${{ matrix.api }}/api-config-tpl.json |jq . > apis/${{ matrix.api }}/api-config.json
+      - name: Publish to APIM
+        uses: Axway/presales-apim-cli-action@v0
+        env:
+          APIM_USER: ${{ secrets.APIM_USER }}
+          APIM_PASS: ${{ secrets.APIM_PASS }}
+          APIM_HOST: ${{ secrets.APIM_HOST }}
+          APIM_PORT: ${{ secrets.APIM_PORT }}
+        with:
+          command: api import -clientAppsMode replace -c apis/${{ matrix.api }}/api-config.json
