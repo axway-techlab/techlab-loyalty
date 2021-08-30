@@ -11,6 +11,7 @@ on:
       - .github/workflows/nike.yaml
 jobs:
   docker:
+    if: "!contains(github.event.head_commit.message, '[SKIP-CI]')" 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,6 +41,7 @@ jobs:
       - name: Update mock
         run: curl -k https://${{ secrets.APIM_HOST }}:8081/mock/${{ env.api }}/update
   apim:
+    if: "!contains(github.event.head_commit.message, '[SKIP-CI]')" 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the git repository
