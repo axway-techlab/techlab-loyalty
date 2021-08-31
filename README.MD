@@ -1,3 +1,14 @@
+# Useful links
+
+- The [API Manager instance](https://ptx145.demo.axway.com:8075/) for this use case.
+- 👟 This repository's [actions](http://github.com/jcabrera-axway/techlab-loyalty/actions)
+- Agents 
+  - 🟢 [Start](https://ptx145.demo.axway.com:8081/agent/both/start)
+  - 🔴 [Stop](https://ptx145.demo.axway.com:8081/agent/both/stop)
+  - ❓ [Status](https://ptx145.demo.axway.com:8081/agent/both/status)
+
+
+# Summary
 - [Use Case](#use-case)
   * [You and your clients](#you-and-your-clients)
   * [The apps](#the-apps)
@@ -14,7 +25,7 @@
     + [`./.github/workflows/apps.yaml`](#githubworkflowsappsyaml)
     + [`./apps/<my_app>/application-config.json`](#appsmy_appapplication-configjson)
     + [Adding or deleting an app](#adding-or-deleting-an-app)
-- [Runthings locally](#runthings-locally)
+- [Run things locally](#runthings-locally)
   * [Installing json-merger](#installing-json-merger)
   * [Installing the APIM](#installing-the-apim)
   * [Publishing an API](#publishing-an-api)
@@ -296,7 +307,7 @@ Commit, push et voilà.
 
 To remove an app, remove its name from the `./.github/workflows/apps.yaml`, remove the folder, commit push, and remove the app from the APIM manually (there is currently no way of doing it via the cli)
 
-## Runthings locally
+## Run things locally
 
 This is for you to poke around and see what is going on in the CI/CD pipeline with your own eyes.
 
