@@ -50,15 +50,15 @@ components:
         code:
           type: string
           enum:
-            - SPRINGOFF
-            - BACKTOSCHOOL
-            - XMASGIFT
-            - SUMMERTIME
-            - HLLWN
-            - MOTHERSDAY
-            - FATHERSDAY
-            - SWAG_ON
-            - JUSTDOIT
+            - PUMASPRINGOFF
+            - PUMABACKTOSCHOOL
+            - PUMAXMASGIFT
+            - PUMASUMMERTIME
+            - PUMAHLLWN
+            - PUMAMOTHERSDAY
+            - PUMAFATHERSDAY
+            - PUMASWAG_ON
+            - PUMAJUSTDOIT
         validity:
           $ref: '#/components/schemas/pumaDateRange'
         amount:

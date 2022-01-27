@@ -50,15 +50,15 @@ components:
         code:
           type: string
           enum:
-            - SPRINGOFF
-            - BACKTOSCHOOL
-            - XMASGIFT
-            - SUMMERTIME
-            - HLLWN
-            - MOTHERSDAY
-            - FATHERSDAY
-            - SWAG_ON
-            - JUSTDOIT
+            - DECATSPRINGOFF
+            - DECATBACKTOSCHOOL
+            - DECATXMASGIFT
+            - DECATSUMMERTIME
+            - DECATHLLWN
+            - DECATMOTHERSDAY
+            - DECATFATHERSDAY
+            - DECATSWAG_ON
+            - DECATJUSTDOIT
         validity:
           $ref: '#/components/schemas/decathlonDateRange'
         amount:
