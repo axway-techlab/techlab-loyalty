@@ -7,7 +7,7 @@
       "name": "Puma coupon system v4",
       "summary": "Coupons to Swag on!",
       "path": "/puma",
-      "version": "1.0-2",
+      "version": "1.0-3",
       "backendBasepath": "http://puma.demo:2004/"
     }
   }
