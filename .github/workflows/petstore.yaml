@@ -11,7 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  
+        
+      - name: Generate api-config.json
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm i -y
+      - run: npx json-merger apis/${{ matrix.api }}/api-config-tpl.json |jq . > apis/${{ matrix.api }}/api-config.json    
       - name: Publish to APIM
         uses: Axway/presales-apim-cli-action@v0
         env:
