@@ -20,4 +20,4 @@ jobs:
           APIM_HOST: ${{ secrets.APIM_HOST }}
           APIM_PORT: ${{ secrets.APIM_PORT }}
         with:
-          command: api import -clientAppsMode replace -c apis/${{ matrix.api }}/petstore.json
+          command: api import -clientAppsMode replace -c apis/${{ matrix.api }}/api-config.json          

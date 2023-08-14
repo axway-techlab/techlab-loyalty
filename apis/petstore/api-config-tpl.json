@@ -1,0 +1,14 @@
+{
+  "$merge": {
+    "source": {
+      "$import": "../defaults.json"
+    },
+    "with": {
+      "name": "Petstore API from GitHub",
+      "summary": "Get coupons with your email",
+      "path": "/api/github/pet",
+      "version": "1.0-1",
+      "backendBasepath": "http://petstore.swagger.io"
+    }
+  }
+}
