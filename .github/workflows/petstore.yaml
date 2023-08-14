@@ -1,0 +1,22 @@
+name: Publish Petstore
+  workflow_dispatch:
+
+jobs:
+  petstore:
+    strategy:
+      matrix:
+        api:
+          - petstore
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the git repository
+        uses: actions/checkout@v2
+      - name: Publish to APIM
+        uses: Axway/presales-apim-cli-action@v0
+        env:
+          APIM_USER: ${{ secrets.APIM_USER }}
+          APIM_PASS: ${{ secrets.APIM_PASS }}
+          APIM_HOST: ${{ secrets.APIM_HOST }}
+          APIM_PORT: ${{ secrets.APIM_PORT }}
+        with:
+          command: api import -clientAppsMode replace -c apis/${{ matrix.api }}/petstore.json
