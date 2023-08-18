@@ -17,18 +17,3 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
-
-      - name: Extract JSON values and generate file
-        id: generate-file
-        run: |
-          payload=$(echo "${{ github.event.payload }}" )
-          value=$(echo "$payload" | jq -r '.spec.definition.value')
-          filename=$(echo "$payload" | jq -r '.name')
-          echo "$value" > "$filename.yaml"
-      - name: Commit and push changes
-        run: |
-          git config --global user.email "klegouda@axway.com"
-          git config --global user.name "GitHub Action"
-          git add "$filename.yaml"
-          git commit -m "Generate and push file"
-          git push origin main          
