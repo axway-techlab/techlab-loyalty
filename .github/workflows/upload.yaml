@@ -1,14 +1,14 @@
 name: Generate and Push File
-
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   generate-and-push:
+    strategy:
+      matrix:
+        api:
+          - petstore  
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -17,3 +17,18 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
+
+      - name: Extract JSON values and generate file
+        id: generate-file
+        run: |
+          payload=$(echo "${{ github.event.payload }}" )
+          value=$(echo "$payload" | jq -r '.spec.definition.value')
+          filename=$(echo "$payload" | jq -r '.name')
+          echo "$value" > "$filename.yaml"
+      - name: Commit and push changes
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add "apis/${{ matrix.api }}/$filename.yaml"
+          git commit -m "Generate and push file"
+          git push origin main          
