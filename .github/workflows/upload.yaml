@@ -1,6 +1,11 @@
 name: Generate and Push File
 on:
   workflow_dispatch:
+    inputs:
+      debug:
+        type: boolean
+        required: false
+        default: true 
 
 jobs:
   generate-and-push:
