@@ -6,24 +6,18 @@ on:
         type: boolean
         required: false
         default: true 
-      repository:
+      ref:
         description: 'Name of triggered repo'
         required: true
-        default: '123re'
+        default: 'main'
         type: string
-      commit:
-        description: 'Short commit'
+      payload:
+        description: 'Name of triggered repo'
         required: true
-        type: string
-        default: 'e123'
-      env:
-        description: 'Environment'
-        required: true
-        type: choice
-        options:
-        - dev
-        - staging
-        - prod        
+        default: 'ddddddddddddd'
+        type: string        
+        
+       
 jobs:
   generate-and-push:
     strategy:
