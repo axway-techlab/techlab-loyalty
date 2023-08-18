@@ -36,11 +36,13 @@ jobs:
 
       - name: Extract JSON values and generate file
         id: generate-file
-        run: |
-          payload=$(echo "${{ github.event.ref }}" )
+#        run: |
+#          payload=$(echo "${{ github.event.ref }}" )
        
- #       run: |
- #         payload=$(echo "${{ github.event.payload }}" )
+        run: |
+          payload=$(echo "${{ github.event.inputs.payload }}" )
+          echo "$payload"
+
  #         value=$(echo "$payload" | jq -r '.spec.definition.value')
  #         filename=$(echo "$payload" | jq -r '.name')
  #         echo "$value" > "$filename.yaml"
