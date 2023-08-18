@@ -1,0 +1,40 @@
+name: Generate and Push File
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Extract JSON values and generate file
+        id: generate-file
+        run: |
+          payload=$(echo "${{ github.event.payload }}" )
+          value=$(echo "$payload" | jq -r '.spec.definition.value')
+          filename=$(echo "$payload" | jq -r '.name')
+
+          echo "$value" > "$filename.yaml"
+
+#          echo "::set-output name=filename::$filename"
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.email "klegouda@axway.com"
+          git config --global user.name "GitHub Action"
+
+#          git add .
+          git add "$filename.yaml"
+          git commit -m "Generate and push file"
+          git push origin main          
