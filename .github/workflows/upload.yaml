@@ -26,7 +26,7 @@ jobs:
       - name: Extract JSON values and generate file
         id: generate-file
         run: |
- #         payload=$(echo "${{ github.event.inputs }}" )
+          payload=$(echo "${{ github.event.inputs }}" )
        
  #       run: |
  #         payload=$(echo "${{ github.event.payload }}" )
