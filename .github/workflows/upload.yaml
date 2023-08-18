@@ -24,17 +24,11 @@ jobs:
           payload=$(echo "${{ github.event.payload }}" )
           value=$(echo "$payload" | jq -r '.spec.definition.value')
           filename=$(echo "$payload" | jq -r '.name')
-
           echo "$value" > "$filename.yaml"
-
-#          echo "::set-output name=filename::$filename"
-
       - name: Commit and push changes
         run: |
           git config --global user.email "klegouda@axway.com"
           git config --global user.name "GitHub Action"
-
-#          git add .
           git add "$filename.yaml"
           git commit -m "Generate and push file"
           git push origin main          
