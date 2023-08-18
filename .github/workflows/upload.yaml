@@ -6,7 +6,24 @@ on:
         type: boolean
         required: false
         default: true 
-
+      repository:
+        description: 'Name of triggered repo'
+        required: true
+        default: '123re'
+        type: string
+      commit:
+        description: 'Short commit'
+        required: true
+        type: string
+        default: 'e123'
+      env:
+        description: 'Environment'
+        required: true
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod        
 jobs:
   generate-and-push:
     strategy:
